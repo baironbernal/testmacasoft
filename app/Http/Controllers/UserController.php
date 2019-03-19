@@ -1,26 +1,38 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
 use App\User;
+use App\Role;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 
 class UserController extends Controller
 {
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware(['role:admin']);
+    }
+
+
     public function index()
     {
-        $users = User::all();
+        
+        $users = User::with('roles')->get();
 
         return response()->json(["users" => $users, "status" => 200]);
-
     }
 
     /**
@@ -42,28 +54,36 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $rules = [
-           'name'     => 'required|string',
+            'name'     => 'required|string',
             'email'    => 'required|string|email|unique:users',
             'password' => 'required|string|confirmed',
+            'photo' => 'required|mimes:jpeg,jpg,png',
+            'role' => 'required|string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['errors' => $errors], 405);
+            return Redirect::back()
+                        ->withErrors($validator)
+                        ->withInput();
         } 
         else {
+
+            $image = $request->file('photo')->store('avatars');
             $user = new User([
                 'name'     => $request->name,
                 'email'    => $request->email,
                 'password' => bcrypt($request->password),
+                'photo' => 'storage/'. $image,
             ]);
+
+            $user->assignRole($request->role);
             $user->save();
 
-            return response()->json(['message' => 'Successfully created user!'], 201);
+            return back()->with('status', '¡Articulo guardado!');
+            
         }
-        
     }
 
     /**
@@ -98,6 +118,21 @@ class UserController extends Controller
     public function update(Request $request, $id)
     {
         //
+    }
+
+    public function delete($id)
+    {   
+        $user = User::find($id);
+        
+        if (! is_null($user)) {
+            $user->roles()->detach();
+            $user->delete();
+
+            return response()->json(["status" => 200]);
+        }
+
+        return response()->json(["status" => 404]);
+        
     }
 
     /**

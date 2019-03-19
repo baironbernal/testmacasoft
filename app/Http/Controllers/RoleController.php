@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers\Api;
+namespace App\Http\Controllers;
 
-use App\User;
+use App\Role;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Validator;
 
 
-class UserController extends Controller
+class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,10 +18,7 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
-
-        return response()->json(["users" => $users, "status" => 200]);
-
+        //
     }
 
     /**
@@ -42,28 +40,21 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $rules = [
-           'name'     => 'required|string',
-            'email'    => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed',
+            'name' => 'required|string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['errors' => $errors], 405);
+            return Redirect::back()
+                        ->withErrors($validator)
+                        ->withInput();
         } 
         else {
-            $user = new User([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'password' => bcrypt($request->password),
-            ]);
-            $user->save();
+            $role = Role::create(['name' => $request->name,'guard_name' => 'web']);
 
-            return response()->json(['message' => 'Successfully created user!'], 201);
+            return back()->with('status', 'Role creado');
         }
-        
     }
 
     /**

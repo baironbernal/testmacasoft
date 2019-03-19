@@ -6,8 +6,17 @@
  */
 
 require('./bootstrap');
-
+const url = window.location.pathname;
 window.Vue = require('vue');
+
+import SmartTable from 'vuejs-smart-table'
+import VueToastr2 from 'vue-toastr-2'
+import 'vue-toastr-2/dist/vue-toastr-2.min.css'
+ 
+window.toastr = require('toastr')
+ 
+Vue.use(VueToastr2)
+
 
 /**
  * The following block of code may be used to automatically register your
@@ -21,6 +30,8 @@ window.Vue = require('vue');
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default));
 
 Vue.component('example-component', require('./components/ExampleComponent.vue').default);
+Vue.component('user-table', require('./components/TableUserComponent.vue').default);
+Vue.use(SmartTable);
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to
@@ -28,6 +39,8 @@ Vue.component('example-component', require('./components/ExampleComponent.vue').
  * or customize the JavaScript scaffolding to fit your unique needs.
  */
 
-const app = new Vue({
-    el: '#app'
-});
+    if (url === '/home') {
+		new Vue({
+		  el: '#table_users',
+		});
+	}
