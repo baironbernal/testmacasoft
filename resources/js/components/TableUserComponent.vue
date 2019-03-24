@@ -1,4 +1,5 @@
 <template>
+ <div> 
   <v-table :data="users" class="table table-dark" >
     <thead slot="head">
         <th>Nombre completo</th>
@@ -17,9 +18,9 @@
            </span>
           </td>
           <td>
-            <button class="btn btn-success">
+            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#editUser" @click="editUser(user.id)">
                 Editar
-            </button>
+              </button>
           </td>
           <td>
             <button v-if="users.length > 1" class="btn btn-warning" 
@@ -30,17 +31,30 @@
         </tr>
     </tbody>
   </v-table>
+  <Edit 
+      v-bind:id="filterUser.id"
+      v-bind:name="filterUser.name"
+      v-bind:email="filterUser.email"
+      v-bind:roles="filterUser.roles">
+  </Edit>
+</div>
+  
 </template>
 
 <script>
+import Edit from './EditUserComponent'
     export default {
+
+        components: {
+          Edit
+        },
         data() {
             return {
                 users: [],
+                filterUser: ''
             }
         },
         mounted() {
-            //toastr.success('Nuevo tag creado');
             axios.get('users')
                 .then(response => {this.users = response.data.users});
             },
@@ -50,13 +64,17 @@
                   .then(response => {
                     var status = response.data.status;
                     if (status == 200) {
-                      toastr.success('Tag eliminado');  
+                      toastr.success('Registro eliminado');  
                     }
                     else {
                       toastr.error('Algo ha ocurrido mal :(');  
                     }
                   });
-            }          
+            },
+            editUser: function(id) {
+                axios.get('users/'+id+'/edit')
+                .then(response => {this.filterUser = response.data.user});
+            }           
         }
 
     }

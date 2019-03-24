@@ -13,6 +13,21 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
 
+    private $rulesValidator = [
+            'name'     => 'required|string',
+            'email'    => 'required|string|email|unique:users',
+            'password' => 'required|string|confirmed',
+            'photo' => 'required|mimes:jpeg,jpg,png',
+            'role' => 'required|string',
+    ];
+    private $rulesValidatorUpdate = [
+            'name'     => 'string',
+            'email'    => 'string|email|unique:users',
+            'password' => 'string|confirmed',
+            'photo' => 'mimes:jpeg,jpg,png',
+            'role' => 'string',
+    ];
+
     /**
      * Display a listing of the resource.
      *
@@ -53,15 +68,8 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $rules = [
-            'name'     => 'required|string',
-            'email'    => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed',
-            'photo' => 'required|mimes:jpeg,jpg,png',
-            'role' => 'required|string',
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
+    
+        $validator = Validator::make($request->all(), $this->rulesValidator);
 
         if ($validator->fails()) {
             return Redirect::back()
@@ -105,7 +113,11 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        $user = User::whereId($id)->with('roles')->first();
+        $roles = Role::all();
+
+        return response()->json(["user" => $user]);
+
     }
 
     /**
@@ -117,7 +129,33 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        return response()->json(["request" => $request->all()]);
+        
+        $validator = Validator::make($request->all(), $this->rulesValidatorUpdate);
+
+        if ($validator->fails()) {
+            return response()->json(["errors" => $validator->errors()->all()]);
+        } 
+        else {
+
+            if ($request->file('photo') != null) {
+                $image = $request->file('photo')->store('avatars');
+                $request->photo = 'storage/'. $image;
+            }
+
+            $user = User::findOrFail($id);  
+            if (! is_null($request->password)) {
+                $request->password = bcrypt($request->password);
+            }
+            
+            
+            
+            $user->update($request->all());
+            $user->syncRoles([$request->role]);
+        
+            return response()->json(["status" => 'Se actualizò el usuario']);
+        }
+
     }
 
     public function delete($id)

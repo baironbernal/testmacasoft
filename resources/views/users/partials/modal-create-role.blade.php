@@ -12,8 +12,8 @@
         {{ csrf_field() }}
       <div class="modal-body">
           <div class="form-group">
-            <label for="NameInput">Nombre de rol:</label>
-            <input type="text" class="form-control" name="name" id="NameInput" placeholder="ingresa el nombre del rol">
+            <label for="RoleInput">Nombre de rol:</label>
+            <input type="text" class="form-control" name="name" id="RoleInput" placeholder="ingresa el nombre del rol">
           </div>
       </div>
       <div class="modal-footer">
