@@ -129,7 +129,7 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        return response()->json(["request" => $request->all()]);
+        return response()->json(["request" => request()]);
         
         $validator = Validator::make($request->all(), $this->rulesValidatorUpdate);
 

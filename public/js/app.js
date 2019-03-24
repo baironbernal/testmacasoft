@@ -1821,8 +1821,9 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
-  props: ['id', 'name', 'email', 'roles'],
+  props: ['id', 'name', 'email', 'roles', 'csrf'],
   data: function data() {
     return {
       allRoles: []
@@ -1837,10 +1838,8 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     updateUser: function updateUser(e) {
-      var id = this.id;
-      var form = document.getElementById('form');
-      var formData = new FormData(form);
-      axios.put('users/' + id, formData).then(function (response) {//toastr.success('Registro actualizado');  
+      axios.put('users/' + this.id, new FormData(this.$refs.updateForm)).then(function (response) {
+        toastr.success('');
       }, function (response) {// error callback
       });
     }
@@ -1935,8 +1934,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
 
 /* harmony default export */ __webpack_exports__["default"] = ({
+  props: ['csrf'],
   components: {
     Edit: _EditUserComponent__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
@@ -39279,7 +39282,8 @@ var render = function() {
               _c(
                 "form",
                 {
-                  attrs: { id: "form", enctype: "multipart/form-data" },
+                  ref: "updateForm",
+                  attrs: { id: "form" },
                   on: {
                     submit: function($event) {
                       $event.preventDefault()
@@ -39288,6 +39292,11 @@ var render = function() {
                   }
                 },
                 [
+                  _c("input", {
+                    attrs: { type: "hidden", name: "_token" },
+                    domProps: { value: _vm.csrf }
+                  }),
+                  _vm._v(" "),
                   _c("div", { staticClass: "modal-body" }, [
                     _c("div", { staticClass: "form-group" }, [
                       _c("label", { attrs: { for: "NameInput2" } }, [
@@ -39441,7 +39450,8 @@ var staticRenderFns = [
         attrs: {
           id: "password-confirm2",
           type: "password",
-          name: "password_confirmation"
+          name: "password_confirmation",
+          required: ""
         }
       })
     ])
@@ -39457,7 +39467,7 @@ var staticRenderFns = [
       _vm._v(" "),
       _c("input", {
         staticClass: "form-control-file",
-        attrs: { name: "photo", type: "file", accept: "img/*", id: "photo" }
+        attrs: { name: "photo", type: "file", accept: "img/*", id: "image2" }
       })
     ])
   },
@@ -39554,6 +39564,7 @@ var render = function() {
   return _c(
     "div",
     [
+      _vm._v("\n " + _vm._s(_vm.csrf) + " \n  "),
       _c(
         "v-table",
         {
@@ -39658,7 +39669,8 @@ var render = function() {
           id: _vm.filterUser.id,
           name: _vm.filterUser.name,
           email: _vm.filterUser.email,
-          roles: _vm.filterUser.roles
+          roles: _vm.filterUser.roles,
+          csrf: _vm.csrf
         }
       })
     ],

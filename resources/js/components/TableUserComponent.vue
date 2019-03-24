@@ -1,5 +1,6 @@
 <template>
- <div> 
+ <div>
+ {{csrf}} 
   <v-table :data="users" class="table table-dark" >
     <thead slot="head">
         <th>Nombre completo</th>
@@ -35,7 +36,9 @@
       v-bind:id="filterUser.id"
       v-bind:name="filterUser.name"
       v-bind:email="filterUser.email"
-      v-bind:roles="filterUser.roles">
+      v-bind:roles="filterUser.roles"
+      :csrf="csrf"
+      >
   </Edit>
 </div>
   
@@ -44,7 +47,7 @@
 <script>
 import Edit from './EditUserComponent'
     export default {
-
+      props : ['csrf'],
         components: {
           Edit
         },

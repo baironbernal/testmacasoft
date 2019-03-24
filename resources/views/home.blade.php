@@ -38,7 +38,7 @@
             </div>
             <hr>
             <div id="table_users">
-                <user-table>
+                <user-table csrf="{{ csrf_token() }}">
                      
                 </user-table>
 

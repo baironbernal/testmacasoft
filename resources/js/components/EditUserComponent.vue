@@ -10,7 +10,8 @@
           <span aria-hidden="true">&times;</span>
         </button>
       </div>
-      <form id="form" @submit.prevent="updateUser()" enctype="multipart/form-data">
+      <form id="form" @submit.prevent="updateUser()" ref="updateForm">
+        <input type="hidden" name="_token" :value="csrf">
       <div class="modal-body">
           <div class="form-group">
             <label for="NameInput2">Nombre</label>
@@ -26,7 +27,7 @@
           </div>
           <div class="form-group">
             <label for="exampleInputPassword2">Confirmar contraseña:</label>
-              <input id="password-confirm2" type="password" class="form-control" name="password_confirmation">
+              <input id="password-confirm2" type="password" class="form-control" name="password_confirmation" required>
           </div>
           <div class="form-group">
             <div class="input-group mb-3">
@@ -42,7 +43,7 @@
           </div>
           <div class="form-group">
             <label for="exampleFormControlFile1">Foto</label>
-            <input name="photo" type="file" accept="img/*" class="form-control-file" id="photo" />
+            <input name="photo" type="file" accept="img/*" class="form-control-file" id="image2" />
           </div>       
       </div>
       <div class="modal-footer">
@@ -58,7 +59,7 @@
 
 <script>
     export default {
-        props : ['id','name','email','roles'],
+        props : ['id','name','email','roles','csrf'],
         data() {
             return {
                 allRoles: [],
@@ -70,13 +71,9 @@
         },
         methods: {
             updateUser: function(e) {
-                var id = this.id;
-                var form = document.getElementById('form');
-                var formData = new FormData(form);
-                
-                axios.put('users/'+ id , formData)
+                axios.put('users/'+ this.id , new FormData(this.$refs.updateForm))
                 .then((response) => {
-                      //toastr.success('Registro actualizado');  
+                      toastr.success('');  
                 }, (response) => {
                     // error callback
                 });

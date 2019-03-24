@@ -2,35 +2,23 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\User;
-use Validator;
+use App\Role;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use App\Http\Controllers\Controller;
 
 
-class UserController extends Controller
+class RoleController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    private $rulesValidatorUpdate = [
-            'name'     => 'string',
-            'email'    => 'string|email|unique:users',
-            'password' => 'string|confirmed',
-            'photo' => 'mimes:jpeg,jpg,png',
-            'role' => 'string',
-    ];
-
-
     public function index()
     {
-        $users = User::all();
-
-        return response()->json(["users" => $users, "status" => 200]);
-
+        return response()->json(["roles" => Role::all()]);
     }
 
     /**
@@ -52,28 +40,20 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $rules = [
-           'name'     => 'required|string',
-            'email'    => 'required|string|email|unique:users',
-            'password' => 'required|string|confirmed',
+            'name' => 'required|string',
         ];
 
         $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['errors' => $errors], 405);
+            return response()->json(["errors" => $validator->errors()->all()]);
         } 
         else {
-            $user = new User([
-                'name'     => $request->name,
-                'email'    => $request->email,
-                'password' => bcrypt($request->password),
-            ]);
-            $user->save();
+            $role = Role::create(['name' => $request->name,'guard_name' => 'web']);
 
-            return response()->json(['message' => 'Successfully created user!'], 201);
+            return response()->json(["message" => 'Rol creado']);
+            
         }
-        
     }
 
     /**
@@ -84,8 +64,8 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find($id);
-        return response()->json(['user' => $user], 201);
+        return response()->json(["role" => Role::findOrFail($id)]);
+
     }
 
     /**
@@ -96,7 +76,7 @@ class UserController extends Controller
      */
     public function edit($id)
     {
-        //
+        
     }
 
     /**
@@ -108,17 +88,18 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), $this->rulesValidatorUpdate);
+        $validator = Validator::make($request->all(), [
+            'name' => 'string'
+        ]);
 
         if ($validator->fails()) {
             return response()->json(["errors" => $validator->errors()->all()]);
         } 
         else {
-            $user = User::findOrFail($id);
-            $user->update($request->all());
-            $user->syncRoles([$request->role]);
-        
-            return response()->json(["status" => 'Se actualizò el usuario']);
+            $role = Role::findOrFail($id);
+            $role->update($request->all());
+            
+            return response()->json(["status" => 'Se actualizò el rol']);
         }
     }
 
@@ -130,7 +111,9 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
-        User::findOrFail($id)->delete();
-        return response()->json(["status" => 'Se eliminò el usuario']);
+        Role::findOrFail($id)->delete();
+
+        return response()->json(["status" => 'Se ha eliminado el rol']);
+
     }
 }
